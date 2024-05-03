@@ -1,0 +1,303 @@
+/* //БИНАРНОЕ ДЕРЕВО
+#include <iostream>
+#include <cstdio>
+#include <cmath> 
+#include <vector>
+
+using namespace std;
+
+struct Node
+{
+	int info;
+	Node* pred = NULL;
+	Node* left = NULL;
+	Node* right = NULL;
+};
+
+void push(Node* Elem, int data)
+{
+	if (Elem->pred == NULL)
+	{
+		Elem->info = data;
+		Elem->pred = Elem;
+	}
+	else
+	{
+		if (Elem->info > data)
+		{
+			if (Elem->left == NULL)
+			{
+				Node* Buf = new Node;
+				Buf->info = data;
+				Buf->pred = Elem;
+				Elem->left = Buf;
+			}
+			else
+			{
+				push(Elem->left, data);
+			}
+		}
+		else if (Elem->info < data)
+		{
+			if (Elem->right == NULL)
+			{
+				Node* Buf = new Node;
+				Buf->info = data;
+				Buf->pred = Elem;
+				Elem->right = Buf;
+			}
+			else
+			{
+				push(Elem->right, data);
+			}
+		}
+	}
+}
+
+void show(Node* Elem, int level)
+{
+	if (Elem->left != NULL)
+	{
+		show(Elem->left, level + 1);
+	}
+	for (int i = 0; i < level; i++)
+	{
+		cout << "     ";
+	}
+	cout << Elem->info << '\n';
+	if (Elem->right != NULL)
+	{
+		show(Elem->right, level + 1);
+	}
+}
+
+void find_tree(Node* Elem, bool& flag, int data)
+{
+	if (Elem->left != NULL)
+	{
+		find_tree(Elem->left, flag, data);
+	}
+	if (Elem->info == data)
+	{
+		flag = true;
+	}
+	if (Elem->right != NULL)
+	{
+		find_tree(Elem->right, flag, data);
+	}
+}
+
+int main()
+{
+	Node* Root = new Node;
+	push(Root, 10);
+	push(Root, 15);
+	push(Root, 12);
+	push(Root, 11);
+	push(Root, 1);
+	push(Root, 14);
+	push(Root, 17);
+	push(Root, 1000);
+	show(Root, 0);
+}*/
+
+/*// ДЕРЕВО ОБЩЕГО ВИДА
+#include <iostream>
+#include <cstdio>
+#include <string>
+
+using namespace std;
+
+struct Node
+{
+	int info = -1;
+	Node* pred = NULL;
+	Node* brat = NULL;
+	Node* first = NULL;
+};
+
+void push(Node* Elem, string& s, int id, int data)
+{
+	if (id == s.size() - 1)
+	{
+		Elem->info = data;
+	}
+	if (s[id] == 'f')
+	{
+		if (Elem->first == NULL)
+		{
+			Node* Buf = new Node;
+			Buf->pred = Elem;
+			Elem->first = Buf;
+		}
+		push(Elem->first, s, id + 1, data);
+	}
+	if (s[id] == 'b')
+	{
+		if (Elem->brat == NULL)
+		{
+			Node* Buf = new Node;
+			Buf->pred = Elem->pred;
+			Elem->brat = Buf;
+		}
+		push(Elem->brat, s, id + 1, data);
+	}
+}
+
+void show(Node* Elem, int level)
+{
+	for (int i = 0; i < level; i++)
+	{
+		cout << "     ";
+	}
+	cout << Elem->info << '\n';
+	if (Elem->first != NULL)
+	{
+		show(Elem->first, level + 1);
+	}
+	if (Elem->brat != NULL)
+	{
+		show(Elem->brat, level);
+	}
+}
+
+int main()
+{
+	Node* Root = new Node;
+	string s = "p";
+	push(Root, s, 0, 10);
+	s = "fp";
+	push(Root, s, 0, 5);
+	s = "fbp";
+	push(Root, s, 0, 3);
+	s = "fbbp";
+	push(Root, s, 0, 1);
+	s = "fbfp";
+	push(Root, s, 0, 7);
+	s = "ffp";
+	push(Root, s, 0, 11);
+	s = "ffbp";
+	push(Root, s, 0, 12);
+	s = "ffbbp";
+	push(Root, s, 0, 13);
+	s = "ffbbbp";
+	push(Root, s, 0, 19);
+	s = "ffbbfp";
+	push(Root, s, 0, 30);
+	show(Root, 0);
+}*/
+
+/*// Дерево отрезков на узлах
+
+#include <iostream>
+#include <vector>
+#include <cmath>
+
+using namespace std;
+
+struct Node
+{
+	long long info;
+
+	// доп элементы 
+
+	int left_bort;
+	int right_bort;
+	Node* left = NULL;
+	Node* right = NULL;
+	Node* pred = NULL;
+};
+
+void change_elem(Node* elem, int id, long long data)
+{
+	if (elem->left == NULL && elem->right == NULL)
+	{
+		elem->info = data;
+	}
+	else
+	{
+		if (elem->left->left_bort <= id && elem->left->right_bort >= id)
+		{
+			change_elem(elem->left, id, data);
+		}
+		else
+		{
+			change_elem(elem->right, id, data);
+		}
+
+		// не будет ситуации, когда правого сына не существует
+
+		elem->info = elem->left->info + elem->right->info;
+	}
+}
+
+void init(Node* elem)
+{
+	if (elem->left_bort != elem->right_bort)
+	{
+		int mid = (elem->left_bort + elem->right_bort) / 2;
+		Node* Buf_l = new Node;
+		Node* Buf_r = new Node;
+		Buf_l->left_bort = elem->left_bort;
+		Buf_l->right_bort = mid;
+		Buf_l->pred = elem;
+		elem->left = Buf_l;
+		init(Buf_l);
+
+		Buf_r->left_bort = mid + 1;
+		Buf_l->right_bort = elem->right_bort;
+		Buf_l->pred = elem;
+		elem->right = Buf_r;
+		init(Buf_r);
+	}
+}
+
+long long Sum_Tree(Node* elem, int l, int r)
+{
+	if (l <= elem->left_bort && elem->right_bort <= r)
+	{
+		return elem->info;
+	}
+	if (elem->right_bort < l || r < elem->left_bort)
+	{
+		return 0;
+	}
+	long long resl = Sum_Tree(elem->left, l, r);
+	long long resr = Sum_Tree(elem->right, l, r);
+	return resl + resr;
+}
+
+int main()
+{
+	int n;
+	cin >> n;
+	int q;
+	cin >> q;
+	Node* Root = new Node;
+	Root->left_bort = 1;
+	Root->right_bort = n;
+	init(Root);
+	for (int i = 1; i <= n; i++)
+	{
+		long long h;
+		cin >> h;
+		change_elem(Root, i, h);
+	}
+	for (int i = 0; i < q; i++)
+	{
+		int key;
+		cin >> key;
+		if (key == 1)
+		{
+			int l, r;
+			cin >> l >> r;
+			cout << Sum_Tree(Root, l, r);
+		}
+		else
+		{
+			int num_list, data;
+			cin >> num_list >> data;
+			change_elem(Root, num_list, data);
+		}
+	}
+}*/
