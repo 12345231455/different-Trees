@@ -245,8 +245,8 @@ void init(Node* elem)
 		init(Buf_l);
 
 		Buf_r->left_bort = mid + 1;
-		Buf_l->right_bort = elem->right_bort;
-		Buf_l->pred = elem;
+		Buf_r->right_bort = elem->right_bort;
+		Buf_r->pred = elem;
 		elem->right = Buf_r;
 		init(Buf_r);
 	}
